@@ -1,8 +1,8 @@
 ..  SPDX-FileCopyrightText: 2024 Ivan Perevala <ivan95perevala@gmail.com>
 
-..  SPDX-License-Identifier: GPL-3.0-or-later
+..  SPDX-License-Identifier: MIT
 
-BlenderHQ initialization framework for Blender extensions
+BHQ initialization framework for Blender extensions
 =========================================================
 
 .. toctree::
