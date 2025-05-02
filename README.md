@@ -1,2 +1,9 @@
-# Initialization framework for Blender extensions
+# BHQ initialization framework for Blender extensions
 
+![logo](./docs/_static/logo-dark.svg)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+See [./LICENSE](./LICENSE) file for license.
+
+© 2024-2025 Ivan Perevala (ivan95perevala@gmail.com)
