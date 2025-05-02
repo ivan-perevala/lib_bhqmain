@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2020-2024 Ivan Perevala <ivan95perevala@gmail.com>
+# SPDX-FileCopyrightText: 2020-2025 Ivan Perevala <ivan95perevala@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 
 """Initialization framework for Blender extensions."""
 
@@ -18,11 +18,11 @@ if __debug__:
 
 from . import _main
 
-from . _main import MainChunk, InvokeState
+from . _main import MainChunk, MainChunkType, InvokeState
 
 __all__ = (
     # file://./_main.py
     "MainChunk",
+    "MainChunkType",
     "InvokeState",
-
 )

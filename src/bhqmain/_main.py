@@ -1,64 +1,101 @@
-# SPDX-FileCopyrightText: 2020-2024 Ivan Perevala <ivan95perevala@gmail.com>
+# SPDX-FileCopyrightText: 2020-2025 Ivan Perevala <ivan95perevala@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 
+import typing
 import logging
-from typing import TYPE_CHECKING, ClassVar, Type, TypeVar, Generic, Mapping
+from typing import ClassVar, Type, TypeVar, Generic, Mapping
 from enum import auto, IntEnum
 
-if TYPE_CHECKING:
-    from bpy.types import Context
 
 __all__ = (
     "MainChunk",
+    "MainChunkType",
     "InvokeState",
 )
 
 log = logging.getLogger(__name__)
-
-
-_MainChunkType = TypeVar("_MainChunkType", bound="MainChunk")
+_dbg = log.debug
+_warn = log.warning
 
 
 class InvokeState(IntEnum):
-    NOT_CALLED = auto()
+    """Initialization state. Returned by :meth:`bhqmain.MainChunk.invoke` and :meth:`bhqmain.MainChunk.cancel` methods.
+    """
+
+    _NOT_CALLED = auto()
+    "Method was not called yet. Currently internal use only."
+
     SUCCESSFUL = auto()
+    "Action was succesfull."
+
     FAILED = auto()
+    "Action failed."
 
 
-class MainChunk(Generic[_MainChunkType]):
+MainChunkType = TypeVar("MainChunkType", bound="MainChunk")
+"Type variable used for :class:`bhqmain.MainChunk` instantination."
+
+ContextType = TypeVar("ContextType")
+
+
+class MainChunk(Generic[MainChunkType, ContextType]):
+    """Abstract generic singleton chunk class.
+
+    :param Generic: Parent chunk type annotation, for top level chunk its the same class.
+    :type Generic: Generic[MainChunkType]
+    :raises TypeError: This means that class should be used as an abstraction. 
+    :raises AssertionError: Assertion if something goes wrong and instance already exists. This should not happen.
+    :raises AssertionError:  On direct initialization call. It can be initialized only using the :meth:`bhqmain.MainChunk.create`.
+    """
+
     # NOTE: Class variables default value affects unit tests, so please, update them alongside.
     _init_lock: ClassVar[bool] = True
 
-    chunks: Mapping[str, Type[MainChunk[_MainChunkType]]] = {}
+    chunks: Mapping[str, Type[MainChunk[MainChunkType, ContextType]]] = {}
+    "Chunks mapping, where keys are field names and values are other chunks."
 
     _invoke_state: InvokeState
-    _instance: None | _MainChunkType = None
+    _instance: None | MainChunkType = None
 
-    main: _MainChunkType
+    main: MainChunkType
 
     @classmethod
-    def get_instance(cls) -> None | _MainChunkType:
+    def get_instance(cls) -> None | MainChunkType:
+        """
+        Should be called after :meth:`bhqmain.MainChunk.create`.
+
+        :return: Returns sucesfully invoked instance of chunk type.
+        :rtype: None | MainChunkType
+        """
+
         if cls._instance and cls._instance._invoke_state == InvokeState.SUCCESSFUL:
             return cls._instance
 
     @classmethod
-    def create(cls) -> _MainChunkType:
+    def create(cls) -> MainChunkType:
+        """Creates chunk instance. If instance already created, does nothing.
+
+        :return: Chunk instance.
+        :rtype: MainChunkType
+        """
         if cls._instance is None:
             cls._init_lock = False
-            cls._instance = cls(None)
+            cls._instance = typing.cast(MainChunkType, cls(None))
             cls._init_lock = True
+
+        assert cls._instance
         return cls._instance
 
-    def __init__(self, main: None | MainChunk[_MainChunkType]):
-        cls = self.__class__
+    def __init__(self, main: None | MainChunk[MainChunkType, ContextType]):
+        cls = type(self)
 
-        self.main = main
+        _dbg(f"Initializing {cls.__qualname__} chunk ...")
 
         if __debug__:
-            if cls is _MainChunkType:
+            if cls is MainChunk:
                 raise TypeError(f"{cls.__name__} should not be used directly")
 
             if cls._instance is not None:
@@ -67,20 +104,26 @@ class MainChunk(Generic[_MainChunkType]):
             if cls._init_lock:
                 raise AssertionError(f"{cls.__name__} can only be created using the create method")
 
-        self._invoke_state = InvokeState.NOT_CALLED
+        self.main = typing.cast(MainChunkType, main)
+
+        self._invoke_state = InvokeState._NOT_CALLED
 
         for attr, chunk_cls in self.chunks.items():
             chunk_cls._init_lock = False
             if main:
+                _dbg(f"{chunk_cls.__qualname__} inited with {main}")
                 chunk = chunk_cls(main)
             else:
+                _dbg(f"{chunk_cls.__qualname__} inited with {self}, this is the main chunk")
                 chunk = chunk_cls(self)
             chunk_cls._init_lock = True
             setattr(self, attr, chunk)
 
-        cls._instance = self
+        cls._instance = typing.cast(MainChunkType, self)
 
-    def invoke(self, context: Context) -> InvokeState:
+        _dbg(f"{cls.__qualname__} initialized.")
+
+    def invoke(self, context: ContextType) -> InvokeState:
         """
         Invoke the main chunks in order and manage their state.
 
@@ -90,7 +133,7 @@ class MainChunk(Generic[_MainChunkType]):
         - Sets the invoke state accordingly.
 
         :param context: The context in which the invocation occurs.
-        :type context: Context
+        :type context: ContextType
 
         :returns: The state after invocation, either SUCCESSFUL or FAILED.
         :rtype: InvokeState
@@ -100,7 +143,7 @@ class MainChunk(Generic[_MainChunkType]):
         if not cls.chunks:
             return InvokeState.SUCCESSFUL
 
-        if self._invoke_state != InvokeState.NOT_CALLED:
+        if self._invoke_state != InvokeState._NOT_CALLED:
             return self._invoke_state
 
         chunks_invocation_began = []
@@ -118,12 +161,12 @@ class MainChunk(Generic[_MainChunkType]):
 
         for chunk in reversed(chunks_invocation_began):
             if not chunk.cancel(context):
-                log.warning(f"Failed to cancel {chunk.__class__.__name__} invocation after failure")
+                _warn(f"Failed to cancel {chunk.__class__.__name__} invocation after failure")
 
         self._invoke_state = InvokeState.FAILED
         return self._invoke_state
 
-    def cancel(self, context: Context) -> InvokeState:
+    def cancel(self, context: ContextType) -> InvokeState:
         """
         Cancels the execution of all chunks in reverse order.
         This method iterates over all chunks defined in the class in reverse order
@@ -132,7 +175,7 @@ class MainChunk(Generic[_MainChunkType]):
         canceled, the method returns True.
 
         :param context: The context in which the cancellation is being performed.
-        :type context: Context
+        :type context: ContextType
         :returns: True if all chunks are successfully canceled, False otherwise.
         :rtype: bool
         :returns: True if all chunks are successfully canceled, False otherwise.
@@ -147,10 +190,10 @@ class MainChunk(Generic[_MainChunkType]):
         if self._invoke_state != InvokeState.SUCCESSFUL:
             return self._invoke_state
 
-        for attr in reversed(cls.chunks.keys()):
+        for attr in reversed(list(cls.chunks)):
             chunk: MainChunk = getattr(self, attr)
-            if not chunk.cancel(context):
-                log.warning(f"Failed to cancel {chunk.__class__.__name__} chunk")
+            if chunk.cancel(context) == InvokeState.FAILED:
+                _warn(f"Failed to cancel {chunk.__class__.__name__} chunk")
                 return InvokeState.FAILED
 
         cls._instance = None
