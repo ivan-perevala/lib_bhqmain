@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Ivan Perevala <ivan95perevala@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 
 # NOTE: Use https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ guide reference for editing this file. 
 
@@ -8,7 +8,7 @@
 [project]
 version = "1.0.0"
 name = "bhqmain"
-description = "Initialization framework for Blender extensions"
+description = "BHQ Initialization framework for Blender extensions"
 authors = [{ name = "Ivan Perevala", email = "ivan95perevala@gmail.com" }]
 maintainers = [{ name = "Ivan Perevala", email = "ivan95perevala@gmail.com" }]
 license = { text = "MIT" }
@@ -38,7 +38,7 @@ where = ["src"]
 # Include LICENSE files as package data for project.
 # https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
 [tool.setuptools.package-data]
-"bhqdio" = ["./LICENSE"]
+"bhqmain" = ["./LICENSE"]
 
 # ----------------------------------------------------------------------------------------------------------------------
 # MyPy configuration.
