@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2020-2024 Ivan Perevala <ivan95perevala@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 
@@ -14,8 +14,9 @@ from . import tested_classes as clss
 @pytest.fixture(autouse=True)
 def reset():
     # NOTE: Reset the Main class to its initial state before each test.
-    clss.TestMain._instance = None
-    clss.TestMain._init_lock = True
+    for cls in clss.TEST_CLASSES:
+        cls._instance = None
+        cls._init_lock = True
 
 
 @pytest.fixture
@@ -26,7 +27,7 @@ def main_instance(reset):
 def test_init_raises():
     # Test that the Main class cannot be instantiated directly.
     with pytest.raises(AssertionError):
-        clss.TestMain()
+        clss.TestMain(None)
 
 
 def test_create(main_instance):
@@ -34,7 +35,7 @@ def test_create(main_instance):
     assert isinstance(main_instance, clss.TestMain)
 
     # Test that instance was not invoked
-    assert main_instance._invoke_state == bhqmain.InvokeState.NOT_CALLED
+    assert main_instance._invoke_state == bhqmain.InvokeState._NOT_CALLED
 
     # Test that chunk instances were created
     assert isinstance(main_instance.first_main_chunk, clss.FirstTestMainChunk)
@@ -45,7 +46,7 @@ def test_create(main_instance):
 
 
 def test_invoke_successfull(main_instance: clss.TestMain):
-    context = clss.TestContext()
+    context = clss.Context()
 
     # Check that with default context invocation would be successful and test value would be set to True
     assert main_instance.invoke(context) == bhqmain.InvokeState.SUCCESSFUL
@@ -61,8 +62,8 @@ def test_invoke_successfull(main_instance: clss.TestMain):
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
-def invoke_fail_context(request) -> clss.TestContext:
-    context = clss.TestContext()
+def invoke_fail_context(request) -> clss.Context:
+    context = clss.Context()
     context.test_number_should_fail_invoke = request.param
     return context
 
@@ -79,8 +80,8 @@ def test_invoke_fails(reset, invoke_fail_context, main_instance: clss.TestMain):
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
-def cancel_fail_context(request) -> clss.TestContext:
-    context = clss.TestContext()
+def cancel_fail_context(request) -> clss.Context:
+    context = clss.Context()
     context.test_number_should_fail_cancel = request.param
     return context
 

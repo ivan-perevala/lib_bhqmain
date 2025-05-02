@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2020-2024 Ivan Perevala <ivan95perevala@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 
 import bhqmain
 
 
-class TestContext:
+class Context:
     __test__ = False
 
     test_number_should_fail_invoke: int
@@ -19,22 +19,22 @@ class TestContext:
 
 
 def methods_helper(index: int):
-    def _invoke_wrapper(self, context: TestContext):
+    def _invoke_wrapper(self, context) -> bhqmain.InvokeState:
         self.check_value = True
         if context.test_number_should_fail_invoke == index:
-            return False
-        return True
+            return bhqmain.InvokeState.FAILED
+        return bhqmain.InvokeState.SUCCESSFUL
 
-    def _cancel_wrapper(self, context: TestContext):
+    def _cancel_wrapper(self, context) -> bhqmain.InvokeState:
         if context.test_number_should_fail_cancel == index:
-            return False
+            return bhqmain.InvokeState.FAILED
         self.check_value = False
-        return True
+        return bhqmain.InvokeState.SUCCESSFUL
 
     return _invoke_wrapper, _cancel_wrapper
 
 
-class _TestMainChunkBase(bhqmain.MainChunk):
+class _TestMainChunkBase(bhqmain.MainChunk["TestMain", "Context"]):
     __test__ = False
 
     check_value: bool
@@ -59,7 +59,7 @@ class ThirdTestMainChunk(_TestMainChunkBase):
     invoke, cancel = methods_helper(index=3)
 
 
-class TestMain(bhqmain.Main):
+class TestMain(bhqmain.MainChunk["TestMain", "Context"]):
     __test__ = False
 
     first_main_chunk: FirstTestMainChunk
@@ -71,3 +71,11 @@ class TestMain(bhqmain.Main):
         "second_main_chunk": SecondTestMainChunk,
         "third_main_chunk": ThirdTestMainChunk,
     }
+
+
+TEST_CLASSES = (
+    TestMain,
+    FirstTestMainChunk,
+    SecondTestMainChunk,
+    ThirdTestMainChunk
+)
