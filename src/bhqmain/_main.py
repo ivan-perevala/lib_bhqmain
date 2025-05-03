@@ -63,6 +63,11 @@ class MainChunk(Generic[MainChunkType, ContextType]):
     main: MainChunkType
 
     @classmethod
+    def _reset_variables(cls):
+        cls._init_lock = True
+        cls._instance = None
+
+    @classmethod
     def get_instance(cls) -> None | MainChunkType:
         """
         Should be called after :meth:`bhqmain.MainChunk.create`.
@@ -140,10 +145,15 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         """
 
         cls = self.__class__
+
+        _dbg(f"Invoking chunk: {cls.__name__}...")
+
         if not cls.chunks:
+            _dbg(f"{cls.__name__} has no child chunks, sucessfull")
             return InvokeState.SUCCESSFUL
 
         if self._invoke_state != InvokeState._NOT_CALLED:
+            _dbg(f"{cls.__name__} previously was called already. Status remains \'{self._invoke_state.name}\'")
             return self._invoke_state
 
         chunks_invocation_began = []
@@ -152,16 +162,34 @@ class MainChunk(Generic[MainChunkType, ContextType]):
             chunk: MainChunk = getattr(self, attr)
             chunks_invocation_began.append(chunk)
 
+            _dbg(f"Invoking child chunk \"{attr}\" ({chunk.__class__.__name__})...")
+
             if chunk.invoke(context) != InvokeState.SUCCESSFUL:
-                log.info(f"Failed to invoke {chunk.__class__.__name__}, cancelling")
+                log.info(f"Failed to invoke child chunk {attr}, cancelling")
                 break
+
+            _dbg(f"Child chunk \"{attr}\" ({chunk.__class__.__name__}) invoked sucesfully")
         else:
             self._invoke_state = InvokeState.SUCCESSFUL
+            _dbg(f"Chunk {cls.__name__} invoked sucesfully")
             return self._invoke_state
 
-        for chunk in reversed(chunks_invocation_began):
-            if not chunk.cancel(context):
-                _warn(f"Failed to cancel {chunk.__class__.__name__} invocation after failure")
+        if chunks_invocation_began:
+            _dbg(f"Invocation of {cls.__name__} was failed, restoring {len(chunks_invocation_began)} chunks...")
+
+            failed_to_cancel = []
+            for chunk in reversed(chunks_invocation_began):
+                if chunk.cancel(context) == InvokeState.FAILED:
+                    failed_to_cancel.append(chunk)
+                    _warn(f"Failed to cancel {chunk.__class__.__name__} invocation after failure")
+
+            if failed_to_cancel:
+                _dbg(
+                    f"Unable to restore children chunks: {', '.join((_.__class__.__name__) for _ in failed_to_cancel)}")
+            else:
+                _dbg(f"Cancelled all children chunks which was already invoked")
+        else:
+            _dbg(f"None of chunks was invoked, nothing to restore.")
 
         self._invoke_state = InvokeState.FAILED
         return self._invoke_state
@@ -184,17 +212,26 @@ class MainChunk(Generic[MainChunkType, ContextType]):
 
         cls = self.__class__
 
+        cls._instance = None
+
         if not cls.chunks:
             return InvokeState.SUCCESSFUL
 
         if self._invoke_state != InvokeState.SUCCESSFUL:
             return self._invoke_state
 
+        failed_to_cancel = []
+
         for attr in reversed(list(cls.chunks)):
             chunk: MainChunk = getattr(self, attr)
-            if chunk.cancel(context) == InvokeState.FAILED:
-                _warn(f"Failed to cancel {chunk.__class__.__name__} chunk")
-                return InvokeState.FAILED
 
-        cls._instance = None
-        return InvokeState.SUCCESSFUL
+            if chunk.cancel(context) == InvokeState.FAILED:
+                failed_to_cancel.append(chunk)
+                _warn(f"Failed to cancel \"{attr}\" ({chunk.__class__.__name__}) chunk")
+
+        if failed_to_cancel:
+            _dbg(f"Unable to cancel children chunks: {', '.join((_.__class__.__name__) for _ in failed_to_cancel)}")
+            return InvokeState.FAILED
+        else:
+            _dbg(f"Cancelled all children chunks")
+            return InvokeState.SUCCESSFUL
