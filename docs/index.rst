@@ -7,7 +7,7 @@ BHQ initialization framework for Blender extensions
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    pages/api
     
