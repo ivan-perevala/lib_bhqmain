@@ -150,6 +150,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
 
         if not cls.chunks:
             _dbg(f"{cls.__name__} has no child chunks, sucessfull")
+            self._invoke_state = InvokeState.SUCCESSFUL
             return InvokeState.SUCCESSFUL
 
         if self._invoke_state != InvokeState._NOT_CALLED:
@@ -211,10 +212,12 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         """
 
         cls = self.__class__
+        _dbg(f"Cancelling chunk: {cls.__name__}...")
 
         cls._instance = None
 
         if not cls.chunks:
+            _dbg(f"{cls.__name__} has no child chunks, sucessfull")
             return InvokeState.SUCCESSFUL
 
         if self._invoke_state != InvokeState.SUCCESSFUL:
