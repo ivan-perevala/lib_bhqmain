@@ -1,4 +1,4 @@
-# BHQ initialization framework for Blender extensions
+# Initialization framework for Blender extensions
 
 ![logo](./docs/_static/logo-dark.svg)
 
