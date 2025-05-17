@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import typing
+import weakref
 import logging
 from typing import ClassVar, Type, TypeVar, Generic, Mapping
 from enum import auto, IntEnum
@@ -68,7 +69,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         cls._instance = None
 
     @classmethod
-    def get_instance(cls) -> None | MainChunkType:
+    def get_instance(cls) -> None | weakref.ReferenceType[MainChunkType]:
         """
         Should be called after :meth:`bhqmain.MainChunk.create`.
 
@@ -77,10 +78,10 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         """
 
         if cls._instance and cls._instance._invoke_state == InvokeState.SUCCESSFUL:
-            return cls._instance
+            return weakref.ref(cls._instance)
 
     @classmethod
-    def create(cls) -> MainChunkType:
+    def create(cls) -> weakref.ReferenceType[MainChunkType]:
         """Creates chunk instance. If instance already created, does nothing.
 
         :return: Chunk instance.
@@ -92,7 +93,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
             cls._init_lock = True
 
         assert cls._instance
-        return cls._instance
+        return weakref.ref(cls._instance)
 
     def __init__(self, main: None | MainChunk[MainChunkType, ContextType]):
         cls = type(self)
