@@ -2,7 +2,7 @@
 
 ..  SPDX-License-Identifier: MIT
 
-BHQ initialization framework for Blender extensions
+Initialization framework for Blender extensions
 =========================================================
 
 .. toctree::
