@@ -32,33 +32,35 @@ def test_init_raises():
 
 def test_create(main_instance):
     # Test that the Main class can be created.
-    assert isinstance(main_instance, clss.TestMain)
+    assert isinstance(main_instance(), clss.TestMain)
 
     # Test that instance was not invoked
-    assert main_instance._invoke_state == bhqmain.InvokeState._NOT_CALLED
+    assert main_instance()._invoke_state == bhqmain.InvokeState._NOT_CALLED
+
+    a = main_instance()
 
     # Test that chunk instances were created
-    assert isinstance(main_instance.first_main_chunk, clss.FirstTestMainChunk)
-    assert isinstance(main_instance.second_main_chunk, clss.SecondTestMainChunk)
+    assert isinstance(main_instance().first_main_chunk, clss.FirstTestMainChunk)
+    assert isinstance(main_instance().second_main_chunk, clss.SecondTestMainChunk)
 
     # Test that check value of chunk was not changed
-    assert main_instance.first_main_chunk.check_value is False
+    assert main_instance().first_main_chunk.check_value is False
 
 
-def test_invoke_successfull(main_instance: clss.TestMain):
+def test_invoke_successfull(main_instance):
     context = clss.Context()
 
     # Check that with default context invocation would be successful and test value would be set to True
-    assert main_instance.invoke(context) == bhqmain.InvokeState.SUCCESSFUL
-    assert main_instance.first_main_chunk.check_value is True
+    assert main_instance().invoke(context) == bhqmain.InvokeState.SUCCESSFUL
+    assert main_instance().first_main_chunk.check_value is True
 
     # Now manually set check value back to False ...
-    main_instance.first_main_chunk.check_value = False
+    main_instance().first_main_chunk.check_value = False
 
     # ... To test if all next calls to invoke method would return successful flag but check value would remain
     # the same - to check if there is no multiple invocation done.
-    assert main_instance.invoke(context) == bhqmain.InvokeState.SUCCESSFUL
-    assert main_instance.first_main_chunk.check_value is False
+    assert main_instance().invoke(context) == bhqmain.InvokeState.SUCCESSFUL
+    assert main_instance().first_main_chunk.check_value is False
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
@@ -68,15 +70,15 @@ def invoke_fail_context(request) -> clss.Context:
     return context
 
 
-def test_invoke_fails(reset, invoke_fail_context, main_instance: clss.TestMain):
+def test_invoke_fails(reset, invoke_fail_context, main_instance):
     # Check that invocation was failed
-    assert main_instance.invoke(invoke_fail_context) is bhqmain.InvokeState.FAILED
+    assert main_instance().invoke(invoke_fail_context) is bhqmain.InvokeState.FAILED
 
     # All check_value's must be set to False at this point because that changes should be reversed by cancelling them
     # in reverse order
-    assert main_instance.first_main_chunk.check_value is False
-    assert main_instance.second_main_chunk.check_value is False
-    assert main_instance.third_main_chunk.check_value is False
+    assert main_instance().first_main_chunk.check_value is False
+    assert main_instance().second_main_chunk.check_value is False
+    assert main_instance().third_main_chunk.check_value is False
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
@@ -86,16 +88,16 @@ def cancel_fail_context(request) -> clss.Context:
     return context
 
 
-def test_cancel_fails(reset, cancel_fail_context, main_instance: clss.TestMain):
+def test_cancel_fails(reset, cancel_fail_context, main_instance):
     # Check that invocation was done
-    assert main_instance.invoke(cancel_fail_context) is bhqmain.InvokeState.SUCCESSFUL
+    assert main_instance().invoke(cancel_fail_context) is bhqmain.InvokeState.SUCCESSFUL
 
     # Check that cancel was failed
-    assert main_instance.cancel(cancel_fail_context) is bhqmain.InvokeState.FAILED
+    assert main_instance().cancel(cancel_fail_context) is bhqmain.InvokeState.FAILED
 
     # Check that at least one chunk check_value is set to True, because cancel method cant revert all changes
     is_one_chunk_checked = False
-    for chunk in (main_instance.first_main_chunk, main_instance.second_main_chunk, main_instance.third_main_chunk):
+    for chunk in (main_instance().first_main_chunk, main_instance().second_main_chunk, main_instance().third_main_chunk):
         if chunk.check_value is True:
             is_one_chunk_checked = True
 

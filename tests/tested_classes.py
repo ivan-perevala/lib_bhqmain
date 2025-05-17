@@ -19,13 +19,13 @@ class Context:
 
 
 def methods_helper(index: int):
-    def _invoke_wrapper(self, context) -> bhqmain.InvokeState:
+    def _invoke_wrapper(self, context: Context) -> bhqmain.InvokeState:
         self.check_value = True
         if context.test_number_should_fail_invoke == index:
             return bhqmain.InvokeState.FAILED
         return bhqmain.InvokeState.SUCCESSFUL
 
-    def _cancel_wrapper(self, context) -> bhqmain.InvokeState:
+    def _cancel_wrapper(self, context: Context) -> bhqmain.InvokeState:
         if context.test_number_should_fail_cancel == index:
             return bhqmain.InvokeState.FAILED
         self.check_value = False
