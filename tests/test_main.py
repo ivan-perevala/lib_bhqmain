@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-import bhqmain
+import bhqmain4 as bhqmain
 
 from . import tested_classes as clss
 

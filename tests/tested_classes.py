@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-import bhqmain
+import bhqmain4 as bhqmain
 
 
 class Context:

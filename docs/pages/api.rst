@@ -5,5 +5,5 @@
 API Reference
 =============
 
-.. automodule:: bhqmain
+.. automodule:: bhqmain4
    :members:

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-import bhqmain
+import bhqmain4 as bhqmain
 
 
 def test_main_direct_use_raises():

@@ -23,7 +23,7 @@ _warn = log.warning
 
 
 class InvokeState(IntEnum):
-    """Initialization state. Returned by :meth:`bhqmain.MainChunk.invoke` and :meth:`bhqmain.MainChunk.cancel` methods.
+    """Initialization state. Returned by :meth:`MainChunk.invoke` and :meth:`MainChunk.cancel` methods.
     """
 
     _NOT_CALLED = auto()
@@ -37,7 +37,7 @@ class InvokeState(IntEnum):
 
 
 MainChunkType = TypeVar("MainChunkType", bound="MainChunk")
-"Type variable used for :class:`bhqmain.MainChunk` instantination."
+"Type variable used for :class:`MainChunk` instantination."
 
 ContextType = TypeVar("ContextType")
 
@@ -49,7 +49,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
     :type Generic: Generic[MainChunkType]
     :raises TypeError: This means that class should be used as an abstraction. 
     :raises AssertionError: Assertion if something goes wrong and instance already exists. This should not happen.
-    :raises AssertionError:  On direct initialization call. It can be initialized only using the :meth:`bhqmain.MainChunk.create`.
+    :raises AssertionError:  On direct initialization call. It can be initialized only using the :meth:`MainChunk.create`.
     """
 
     # NOTE: Class variables default value affects unit tests, so please, update them alongside.
@@ -71,7 +71,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
     @classmethod
     def get_instance(cls) -> None | weakref.ReferenceType[MainChunkType]:
         """
-        Should be called after :meth:`bhqmain.MainChunk.create`.
+        Should be called after :meth:`MainChunk.create`.
 
         :return: Returns sucesfully invoked instance of chunk type.
         :rtype: None | MainChunkType
