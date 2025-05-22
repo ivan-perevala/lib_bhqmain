@@ -17,6 +17,7 @@ __pycache__/
 dmypy.json
 
 # Build files
+dist/
 build/
 _build/
 **.egg-info/
