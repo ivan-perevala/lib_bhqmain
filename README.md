@@ -1,7 +1,7 @@
 # Initialization framework for Blender extensions
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/lib-bhqmain/badge/?version=latest)](https://lib-bhqmain.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/lib-bhqmain/badge/?version=latest)](https://lib-bhqmain.readthedocs.io/latest/?badge=latest)
 
 
 <p align="center">
