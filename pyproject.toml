@@ -17,6 +17,7 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICENSE"]
+keywords = ["framework", "singleton", "chunk"]
 
 # Python version used by Blender 4.4
 # TODO: Test and update pyproject.toml w.r.t. required Blender version.
@@ -25,6 +26,7 @@ requires-python = ">=3.11"
 [project.urls]
 Homepage = "https://github.com/ivan-perevala/lib_bhqmain"
 Issues = "https://github.com/ivan-perevala/lib_bhqmain/issues"
+Documentation = "https://lib-bhqmain.readthedocs.io/en/4.2.1/"
 
 [tool.setuptools.dynamic]
 optional-dependencies = { docs = { file = [
