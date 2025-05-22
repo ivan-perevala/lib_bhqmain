@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 [project]
 name = "bhqmain"
-version = "4.2.0"
+version = "4.2.1"
 authors = [{ name = "Ivan Perevala", email = "ivan95perevala@gmail.com" }]
 description = "Initialization framework for Blender extensions"
 readme = "README.md"
