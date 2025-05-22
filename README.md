@@ -1,6 +1,6 @@
 # Initialization framework for Blender extensions
 
-![logo](./docs/_static/logo-dark.svg)
+![logo](https://raw.githubusercontent.com/ivan-perevala/lib_bhqmain/main/.github/images/logo-dark.svg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
