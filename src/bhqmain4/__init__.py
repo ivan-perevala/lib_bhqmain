@@ -2,7 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-"""Initialization framework for Blender extensions."""
+"""
+Lightweight library that helps structure code into chunks. The idea is simple: there is a main chunk and derived chunks.
+When the `invoke` method of the main chunk is called, it invokes all derived chunks, and the same applies to the
+`cancel` method. The actual implementation handles situations where one of the chunks is unable to invoke or
+cancel - in this case, all previously invoked chunks will be cancelled, and information about what happened will
+be logged.
+"""
 
 from __future__ import annotations
 
