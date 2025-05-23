@@ -30,7 +30,7 @@ class InvokeState(IntEnum):
     "Method was not called yet. Currently internal use only."
 
     SUCCESSFUL = auto()
-    "Action was succesfull."
+    "Action was successful."
 
     FAILED = auto()
     "Action failed."
@@ -73,7 +73,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         """
         Should be called after :meth:`MainChunk.create`.
 
-        :return: Returns sucesfully invoked instance of chunk type.
+        :return: Returns successfully invoked instance of chunk type.
         :rtype: None | MainChunkType
         """
 
@@ -150,7 +150,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         _dbg(f"Invoking chunk: {cls.__name__}...")
 
         if not cls.chunks:
-            _dbg(f"{cls.__name__} has no child chunks, sucessfull")
+            _dbg(f"{cls.__name__} has no child chunks, successful")
             self._invoke_state = InvokeState.SUCCESSFUL
             return InvokeState.SUCCESSFUL
 
@@ -170,10 +170,10 @@ class MainChunk(Generic[MainChunkType, ContextType]):
                 log.info(f"Failed to invoke child chunk {attr}, cancelling")
                 break
 
-            _dbg(f"Child chunk \"{attr}\" ({chunk.__class__.__name__}) invoked sucesfully")
+            _dbg(f"Child chunk \"{attr}\" ({chunk.__class__.__name__}) invoked successfully")
         else:
             self._invoke_state = InvokeState.SUCCESSFUL
-            _dbg(f"Chunk {cls.__name__} invoked sucesfully")
+            _dbg(f"Chunk {cls.__name__} invoked successfully")
             return self._invoke_state
 
         if chunks_invocation_began:
@@ -218,7 +218,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         cls._instance = None
 
         if not cls.chunks:
-            _dbg(f"{cls.__name__} has no child chunks, sucessfull")
+            _dbg(f"{cls.__name__} has no child chunks, successful")
             return InvokeState.SUCCESSFUL
 
         if self._invoke_state != InvokeState.SUCCESSFUL:

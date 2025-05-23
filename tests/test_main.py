@@ -95,7 +95,7 @@ def test_cancel_fails(reset, cancel_fail_context, main_instance):
     # Check that cancel was failed
     assert main_instance().cancel(cancel_fail_context) is bhqmain.InvokeState.FAILED
 
-    # Check that at least one chunk check_value is set to True, because cancel method cant revert all changes
+    # Check that at least one chunk check_value is set to True, because cancel method can't revert all changes
     is_one_chunk_checked = False
     for chunk in (main_instance().first_main_chunk, main_instance().second_main_chunk, main_instance().third_main_chunk):
         if chunk.check_value is True:
