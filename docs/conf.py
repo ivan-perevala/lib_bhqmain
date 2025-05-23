@@ -39,9 +39,7 @@ source_suffix = {
 master_doc = 'index'
 
 autodoc_member_order = "bysource"
-autodoc_mock_imports = [
-    "bpy", "gpu", "rna_keymap_ui", "bl_ui", "blf", "mathutils", "numpy", "gpu_extras"
-]
+autodoc_mock_imports = []
 
 autodoc_typehints_format = 'short'
 autodoc_typehints = 'none'

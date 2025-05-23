@@ -6,6 +6,16 @@ Initialization framework for Blender extensions
 =========================================================
 
 .. image::
+   https://img.shields.io/pypi/v/bhqmain.svg
+   :alt: PyPI
+   :target: https://pypi.org/project/bhqmain/
+
+.. image::
+   https://img.shields.io/pypi/status/bhqmain.svg
+   :alt: PyPI
+   :target: https://pypi.org/project/bhqmain/
+
+.. image::
    https://img.shields.io/badge/License-MIT-yellow.svg
    :alt: License: MIT
    :target: https://opensource.org/licenses/MIT
@@ -33,6 +43,9 @@ Links
       
       pip install bhqmain
 
+Example:
+
+.. literalinclude:: examples/basic.py
 
 .. toctree::
    :maxdepth: 2

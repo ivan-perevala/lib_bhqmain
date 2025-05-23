@@ -14,6 +14,7 @@ from enum import auto, IntEnum
 __all__ = (
     "MainChunk",
     "MainChunkType",
+    "ContextType",
     "InvokeState",
 )
 
@@ -40,24 +41,28 @@ MainChunkType = TypeVar("MainChunkType", bound="MainChunk")
 "Type variable used for :class:`MainChunk` instantination."
 
 ContextType = TypeVar("ContextType")
+"Type variable used for :class:`MainChunk` context."
 
 
 class MainChunk(Generic[MainChunkType, ContextType]):
-    """Abstract generic singleton chunk class.
+    """Generic base class designed to manage hierarchical chunks of functionality. 
+    It provides mechanisms for creating, invoking, and canceling chunks, ensuring proper 
+    state management and singleton behavior.
 
-    :param Generic: Parent chunk type annotation, for top level chunk its the same class.
-    :type Generic: Generic[MainChunkType]
-    :raises TypeError: This means that class should be used as an abstraction. 
-    :raises AssertionError: Assertion if something goes wrong and instance already exists. This should not happen.
-    :raises AssertionError:  On direct initialization call. It can be initialized only using the :meth:`MainChunk.create`.
+    :param Generic: Generic type representing the main chunk type.
+    :type Generic: Generic[MainChunkType, ContextType]
+    :cvar chunks: Chunks mapping, where keys are field names and values are other chunks.
+    :type chunks: Mapping[str, Type[MainChunk[MainChunkType, ContextType]]]
+    :raises TypeError: If the class is used directly instead of being subclassed.
+    :raises AssertionError: If the class is instantiated without using the `create` method or if multiple instances
+     are attempted to be created (should not happen).
     """
 
     # NOTE: Class variables default value affects unit tests, so please, update them alongside.
     _init_lock: ClassVar[bool] = True
 
     chunks: Mapping[str, Type[MainChunk[MainChunkType, ContextType]]] = {}
-    "Chunks mapping, where keys are field names and values are other chunks."
-
+    
     _invoke_state: InvokeState
     _instance: None | MainChunkType = None
 
@@ -70,23 +75,26 @@ class MainChunk(Generic[MainChunkType, ContextType]):
 
     @classmethod
     def get_instance(cls) -> None | weakref.ReferenceType[MainChunkType]:
-        """
-        Should be called after :meth:`MainChunk.create`.
+        """Returns a weak reference to the singleton instance of the chunk. If the instance is not created or is in a
+        failed state, it returns None. This method is useful for checking the current state of the chunk
+        without creating a strong reference to it.        
 
-        :return: Returns successfully invoked instance of chunk type.
-        :rtype: None | MainChunkType
+        :return: Weak reference to the singleton instance of the chunk.
+        :rtype: None | weakref.ReferenceType[MainChunkType]
         """
-
         if cls._instance and cls._instance._invoke_state == InvokeState.SUCCESSFUL:
             return weakref.ref(cls._instance)
 
     @classmethod
     def create(cls) -> weakref.ReferenceType[MainChunkType]:
-        """Creates chunk instance. If instance already created, does nothing.
+        """Creates chunk instance. If instance already created, does nothing. This method is a factory method that
+        initializes the chunk and its child chunks. It ensures that the chunk is a singleton and that it is not
+        directly instantiated. The method also handles the initialization of child chunks and sets their state.
 
-        :return: Chunk instance.
-        :rtype: MainChunkType
+        :return: Weak reference to the singleton instance of the chunk.
+        :rtype: weakref.ReferenceType[MainChunkType]
         """
+
         if cls._instance is None:
             cls._init_lock = False
             cls._instance = typing.cast(MainChunkType, cls(None))
@@ -130,18 +138,17 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         _dbg(f"{cls.__qualname__} initialized.")
 
     def invoke(self, context: ContextType) -> InvokeState:
-        """
-        Invoke the main chunks in order and manage their state.
-
-        - Checks if the invoke method has already been called.
-        - Iterates through each chunk, invoking them in sequence.
-        - If any chunk fails to invoke, it cancels all previously invoked chunks.
-        - Sets the invoke state accordingly.
+        """Invokes the main chunks in order and manages their state. This method checks if the invoke method has
+        already been called. If it has, it returns the current state. If not, it iterates through each chunk,
+        invoking them in sequence. If any chunk fails to invoke, it cancels all previously invoked chunks and
+        sets the invoke state to FAILED. If all chunks are invoked successfully, it sets the invoke state to
+        :attr:`InvokeState.SUCCESSFUL`.
+        This method is responsible for managing the lifecycle of the chunks and ensuring that they are
+        properly initialized and invoked in the correct order.
 
         :param context: The context in which the invocation occurs.
         :type context: ContextType
-
-        :returns: The state after invocation, either SUCCESSFUL or FAILED.
+        :return: The state after invocation, either :attr:`InvokeState.SUCCESSFUL` or :attr:`InvokeState.FAILED`.
         :rtype: InvokeState
         """
 
@@ -197,19 +204,16 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         return self._invoke_state
 
     def cancel(self, context: ContextType) -> InvokeState:
-        """
-        Cancels the execution of all chunks in reverse order.
-        This method iterates over all chunks defined in the class in reverse order
-        and attempts to cancel each one. If any chunk fails to cancel, a warning
-        is logged and the method returns False. If all chunks are successfully
-        canceled, the method returns True.
+        """Cancels the execution of all chunks in reverse order. This method iterates over all chunks defined in the
+        class in reverse order and attempts to cancel each one. If any chunk fails to cancel, a warning is logged and
+        the method returns FAILED. If all chunks are successfully canceled, the method returns
+        :attr:`InvokeState.SUCCESSFUL`. This method is responsible for managing the lifecycle of the chunks and ensuring
+        that they are properly cleaned up and released.
 
         :param context: The context in which the cancellation is being performed.
         :type context: ContextType
-        :returns: True if all chunks are successfully canceled, False otherwise.
-        :rtype: bool
-        :returns: True if all chunks are successfully canceled, False otherwise.
-        :rtype: bool
+        :returns: The state after cancellation, either :attr:`InvokeState.SUCCESSFUL` or :attr:`InvokeState.FAILED`.
+        :rtype: InvokeState
         """
 
         cls = self.__class__

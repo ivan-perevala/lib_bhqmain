@@ -1,5 +1,7 @@
 # Initialization framework for Blender extensions
 
+[![PyPI](https://img.shields.io/pypi/v/bhqmain.svg)](https://pypi.org/project/bhqmain/)
+[![Status](https://img.shields.io/pypi/status/bhqmain.svg)](https://pypi.org/project/bhqmain/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/lib-bhqmain/badge/?version=latest)](https://lib-bhqmain.readthedocs.io/latest)
 ![Tests](https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/python-tests.yml/badge.svg)
