@@ -5,6 +5,31 @@
 Initialization framework for Blender extensions
 =========================================================
 
+.. image::
+   https://img.shields.io/badge/License-MIT-yellow.svg
+   :alt: License: MIT
+   :target: https://opensource.org/licenses/MIT
+
+.. image::
+   https://readthedocs.org/projects/lib-bhqmain/badge/?version=latest
+   :alt: Documentation Status
+   :target: https://lib-bhqmain.readthedocs.io/latest
+
+.. image::
+   https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/python-tests.yml/badge.svg
+   :alt: Tests
+
+Links
+*****
+
+* `GitHub Repository <https://github.com/ivan-perevala/lib_bhqmain>`_
+
+* Project is `available on PyPI <https://pypi.org/project/bhqmain>`_:
+   .. code-block:: powershell
+      
+      pip install bhqmain
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents
@@ -12,7 +37,7 @@ Initialization framework for Blender extensions
    pages/api
     
 Indices and tables
-==================
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`
