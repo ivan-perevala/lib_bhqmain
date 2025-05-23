@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/lib-bhqmain/badge/?version=latest)](https://lib-bhqmain.readthedocs.io/latest)
 ![Tests](https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/python-tests.yml/badge.svg)
-
+![Spell Check](https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/spellcheck.yml/badge.svg)
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/ivan-perevala/lib_bhqmain/main/.github/images/logo-dark.svg" alt="Logo" style="width:50%; height:auto;">

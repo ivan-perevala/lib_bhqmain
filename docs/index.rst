@@ -19,6 +19,10 @@ Initialization framework for Blender extensions
    https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/python-tests.yml/badge.svg
    :alt: Tests
 
+.. image::
+   https://github.com/ivan-perevala/lib_bhqmain/actions/workflows/spellcheck.yml/badge.svg
+   :alt: Tests
+
 Links
 *****
 
