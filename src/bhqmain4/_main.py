@@ -200,6 +200,7 @@ class MainChunk(Generic[MainChunkType, ContextType]):
         else:
             _dbg(f"None of chunks was invoked, nothing to restore.")
 
+        cls._instance = None
         self._invoke_state = InvokeState.FAILED
         return self._invoke_state
 
